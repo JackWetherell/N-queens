@@ -139,15 +139,21 @@ class Board:
 
     def fill(self):
         '''Fill the board with queens.'''
-        solve = self._solve_col(0)
+        try:
+            solve = self._solve_col(0)
+            return True
+        except IndexError:
+            print('N = {} is unsolvable.'.format(N))
+            return False
 
 
 def solve(N):
     '''Method to sovle the N queens problem'''
     board = Board(N)
     print('solving {} queens problem...'.format(N))
-    board.fill()
-    print(board.state)
+    solved = board.fill()
+    if solved:
+        print(board.state)
 
 
 if __name__ == '__main__':
