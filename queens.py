@@ -1,11 +1,4 @@
-'''
-Script to solve N queens problem on a NxN chess board.
-Example to solve classic 4 queens problem:
-import queens
-board = queens.Board(N=4)
-board.fill()
-print(board.solved_states[0])
-'''
+'''Script to solve N queens problem on a NxN chess board.'''
 import numpy as np
 
 
@@ -17,21 +10,17 @@ class Board:
         '''Class constructor.
 
         Initialises the board state to be an empty NxN grid.
-        The grid is initialised with 0s representing an empty square, and 1s representing a queen (always treated as booleans).
+        The grid is initialised with 0s. 0s representing an empty square, and 1s representing a queen (always treated as booleans).
 
         N : int
             Size of NxN board.
         '''
         self.N = N
         self.state = np.zeros(shape=(N,N), dtype=np.int)
-        self.solved_states = list()
 
 
     def __str__(self):
-        s = self.__repr__() + '\n'
-        s += str(self.state) + '\n'
-        s += 'number of queens = {}'.format(self.queens)
-        return s
+        return str(self.state) + '\n'
 
 
     def _queen_valid(self, position):
@@ -39,6 +28,9 @@ class Board:
 
         position : tuple(int, int)
             (i ,j) position to test.
+
+        returns : bool
+            Bool indicating if queen is valid in this postion.
         '''
         # unpack tuble
         i = position[0]
@@ -66,39 +58,99 @@ class Board:
         return True
 
 
-    def _place_queen(self, i):
-        # TODO
-        raise NotImplementedError()
+    def _place_queen(self, j):
+        '''Attempts to place a queen in column j.
 
+        j : int
+            Column to attempt to place queen.
 
-    def _move_queen(self, i):
-        # TODO
-        raise NotImplementedError()
-
-
-    def _delete_queens(self, i):
-        # TODO
-        raise NotImplementedError()
-
-
-    def fill(self, k=1, verbosity='low'):
-        '''Fill the board with queens.
-
-        k : int (default 1)
-            Number of solutions required. If this is bigger than the number of solutions is will return all of the solutions.
-            Set to -1 to return all of the solutions.
-        verbosity : str (default 'low')
-            Verbosity of the solve. if 'low' will solve silently. If 'high' will print ful solve.
+        returns : bool
+            Bool indicating if placing of queen was succesfull.
         '''
-        # TODO
-        raise NotImplementedError()
+        for i in range(self.N):
+            if self._queen_valid((i, j)):
+                self.state[i,j] = 1
+                return True
+        return False
 
 
-def test_4():
-    '''Method to test this works for the standard 4 queens problem'''
-    board = Board(N=4)
-    print(board)
+    def _move_queen(self, j):
+        '''Attempts to move a queen down in column j.
+
+        j : int
+            Column to attempt to move queen down.
+
+        returns : bool
+            Bool indicating if moving of queen was succesfull.
+        '''
+        current_index = int(np.where(self.state[:,j])[0][0])
+        self.state[current_index,j] = 0
+        for i in range(current_index + 1, self.N):
+            if self._queen_valid((i, j)):
+                self.state[i,j] = 1
+                return True
+        self.state[current_index,j] = 1
+        return False
+
+
+    def _delete_queens(self, j):
+        '''Delete all queens to the right of and including column j.
+
+        j : int
+            Column to begin deletion.
+        '''
+        print('attempting _delete_queens: j = {}'.format(j))
+        for col in range(j, self.N):
+            self.state[:,col] = 0
+
+
+    def _solve_col(self, j):
+        '''Solve column j.
+
+        j : int
+            Column to solve.
+        '''
+        for col in range(j, self.N):
+            assert all(self.state[:,col] == 0)
+        if j == self.N:
+            return
+        if self._place_queen(j):
+            self._solve_col(j+1)
+        else:
+            if self._move_queen(j-1):
+                self._solve_col(j)
+            else:
+                self._ripple(j)
+
+
+    def _ripple(self, j):
+        '''Ripple column j.
+
+        This is called when the current column is unsolvable, this resets the previous column and retries.
+
+        j : int
+            Column to ripple.
+        '''
+        self._delete_queens(j-1)
+        if self._move_queen(j-2):
+            self._solve_col(j-1)
+        else:
+            self._ripple(j-1)
+
+
+    def fill(self):
+        '''Fill the board with queens.'''
+        solve = self._solve_col(0)
+
+
+def solve(N):
+    '''Method to sovle the N queens problem'''
+    board = Board(N)
+    print('solving {} queens problem...'.format(N))
+    board.fill()
+    print(board.state)
 
 
 if __name__ == '__main__':
-    test_4()
+    N = int(input('N = '))
+    solve(N)
