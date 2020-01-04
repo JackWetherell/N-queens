@@ -1,8 +1,8 @@
 '''
-Script to solve Q queens problem on a NxN chess board.
+Script to solve N queens problem on a NxN chess board.
 Example to solve classic 4 queens problem:
 import queens
-board = queens.Board(N=4, Q=4)
+board = queens.Board(N=4)
 board.fill()
 print(board.solved_states[0])
 '''
@@ -13,20 +13,17 @@ class Board:
     '''Contains the current state of the chess board and related functions.'''
 
 
-    def __init__(self, N, Q):
+    def __init__(self, N):
         '''Class constructor.
 
-        Initialises the board state to be an empty NxN grid along with the number of queens to be placed.
+        Initialises the board state to be an empty NxN grid.
         The grid is initialised with 0s representing an empty square, and 1s representing a queen (always treated as booleans).
 
         N : int
             Size of NxN board.
-        Q : int
-            Number of queens to be placed.
         '''
-        self.state = np.zeros(shape=(N,N), dtype=np.int)
         self.N = N
-        self.queens = Q
+        self.state = np.zeros(shape=(N,N), dtype=np.int)
         self.solved_states = list()
 
 
@@ -99,8 +96,7 @@ class Board:
 
 def test_4():
     '''Method to test this works for the standard 4 queens problem'''
-    board = Board(4, 4)
-    board.state[0,0] = 1
+    board = Board(N=4)
     print(board)
 
 
