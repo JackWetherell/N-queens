@@ -99,7 +99,6 @@ class Board:
         j : int
             Column to begin deletion.
         '''
-        print('attempting _delete_queens: j = {}'.format(j))
         for col in range(j, self.N):
             self.state[:,col] = 0
 
